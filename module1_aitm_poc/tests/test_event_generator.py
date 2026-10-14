@@ -63,6 +63,17 @@ class TestEventGenerator(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_event(invalid_event)
 
+    def test_suspicious_event_contains_expected_indicators(self):
+        suspicious = next(
+            event for event in self.events
+            if event["scenario"] == "suspicious_simulation"
+        )
+
+        self.assertTrue(suspicious["tls_anomaly"])
+        self.assertTrue(suspicious["replay_indicator"])
+        self.assertGreater(suspicious["redirect_count"], 1)
+       
+
 
 if __name__ == "__main__":
     unittest.main()
