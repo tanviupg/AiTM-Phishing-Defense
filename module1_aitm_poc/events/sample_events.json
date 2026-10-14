@@ -1,7 +1,7 @@
 [
   {
     "session_id": "LAB-001",
-    "timestamp": "2026-10-14T18:35:19.302134+00:00",
+    "timestamp": "2026-10-14T19:14:30.283121+00:00",
     "auth_result": "success",
     "redirect_count": 1,
     "redirect_chain": [
@@ -15,7 +15,7 @@
   },
   {
     "session_id": "LAB-002",
-    "timestamp": "2026-10-14T18:35:19.302134+00:00",
+    "timestamp": "2026-10-14T19:14:30.283121+00:00",
     "auth_result": "success",
     "redirect_count": 4,
     "redirect_chain": [

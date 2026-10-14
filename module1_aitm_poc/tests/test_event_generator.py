@@ -37,6 +37,14 @@ class TestEventGenerator(unittest.TestCase):
         scenarios = {event["scenario"] for event in self.events}
         self.assertIn("normal", scenarios)
         self.assertIn("suspicious_simulation", scenarios)
+    
+    def test_invalid_event_is_rejected(self):
+        from event_generator import validate_event
+
+        invalid_event = {"session_id": "LAB-003"}
+
+        with self.assertRaises(ValueError):
+            validate_event(invalid_event)
 
 
 if __name__ == "__main__":
