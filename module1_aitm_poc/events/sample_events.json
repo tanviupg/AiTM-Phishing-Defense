@@ -1,0 +1,33 @@
+[
+  {
+    "session_id": "LAB-001",
+    "timestamp": "2026-10-14T18:35:19.302134+00:00",
+    "auth_result": "success",
+    "redirect_count": 1,
+    "redirect_chain": [
+      "lab-idp.local"
+    ],
+    "tls_anomaly": false,
+    "replay_indicator": false,
+    "source_ip": "192.0.2.10",
+    "device_id": "DEVICE-A",
+    "scenario": "normal"
+  },
+  {
+    "session_id": "LAB-002",
+    "timestamp": "2026-10-14T18:35:19.302134+00:00",
+    "auth_result": "success",
+    "redirect_count": 4,
+    "redirect_chain": [
+      "lab-login.local",
+      "proxy-simulation.local",
+      "lab-idp.local",
+      "lab-login.local"
+    ],
+    "tls_anomaly": true,
+    "replay_indicator": true,
+    "source_ip": "198.51.100.20",
+    "device_id": "DEVICE-B",
+    "scenario": "suspicious_simulation"
+  }
+]
