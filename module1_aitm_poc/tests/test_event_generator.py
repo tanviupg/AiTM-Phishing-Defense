@@ -38,6 +38,23 @@ class TestEventGenerator(unittest.TestCase):
         self.assertIn("normal", scenarios)
         self.assertIn("suspicious_simulation", scenarios)
     
+    def test_events_match_shared_schema(self):
+        schema_path = (
+            Path(__file__).resolve().parents[2]
+            / "integration"
+            / "event_schema.json"
+        )
+
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        required_fields = set(schema["required_fields"])
+
+        for event in self.events:
+            self.assertTrue(
+                required_fields.issubset(event.keys()),
+                f"Event {event.get('session_id')} is missing required fields"
+            )
+    
+    
     def test_invalid_event_is_rejected(self):
         from event_generator import validate_event
 
