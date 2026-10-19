@@ -1,4 +1,4 @@
-﻿from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict
 from typing import Any, Optional
 
 
@@ -194,7 +194,10 @@ class AiTMDetector:
         if tls_analyzer is not None:
             tls_res = tls_analyzer.analyze_event_tls(event, reference_time=reference_time)
         elif "certificate_telemetry" in event:
-            from tls_analyzer import TLSAnalyzer
+            try:
+                from tls_analyzer import TLSAnalyzer
+            except ImportError:
+                from module2_detection.tls_analyzer import TLSAnalyzer
             lazy_analyzer = TLSAnalyzer()
             tls_res = lazy_analyzer.analyze_event_tls(event, reference_time=reference_time)
 
@@ -227,16 +230,43 @@ class AiTMDetector:
                 if tag not in all_indicators:
                     all_indicators.append(tag)
 
+            session_inds = set(session_res["indicators"])
+
+            # Token binding failure (+0.35)
+            if "TOKEN_BINDING_FAILURE" in session_inds:
+                composite_score += 0.35
+
+            # Replay metadata modifiers
+            if "CONCURRENT_SESSION_BIFURCATION" in session_inds:
+                composite_score += 0.25
+            if "CLIENT_PLATFORM_DIVERGENCE" in session_inds:
+                composite_score += 0.25
+            if "DATACENTER_SOURCE_TRANSITION" in session_inds:
+                composite_score += 0.20
+
             if session_res["is_correlated"]:
-                if "SUSPICIOUS_CONTEXT_MISMATCH" in session_res["indicators"]:
+                if "SUSPICIOUS_CONTEXT_MISMATCH" in session_inds:
                     composite_score += 0.30
-                    explanations.append(f"Temporal: {session_res['explanation']}")
-                elif "DEVICE_CONTEXT_CHANGED" in session_res["indicators"]:
+                elif "DEVICE_CONTEXT_CHANGED" in session_inds:
                     composite_score += 0.15
-                    explanations.append(f"Temporal: {session_res['explanation']}")
-                elif "RAPID_SOURCE_IP_CHANGE" in session_res["indicators"]:
+                elif "RAPID_SOURCE_IP_CHANGE" in session_inds:
                     composite_score += 0.10
-                    explanations.append(f"Temporal: {session_res['explanation']}")
+
+            if any(ind in session_inds for ind in (
+                "TOKEN_BINDING_FAILURE", "CONCURRENT_SESSION_BIFURCATION",
+                "CLIENT_PLATFORM_DIVERGENCE", "DATACENTER_SOURCE_TRANSITION",
+                "SUSPICIOUS_CONTEXT_MISMATCH", "DEVICE_CONTEXT_CHANGED", "RAPID_SOURCE_IP_CHANGE"
+            )):
+                explanations.append(f"Temporal: {session_res['explanation']}")
+        elif isinstance(event.get("token_binding_status"), str):
+            tb_norm = event["token_binding_status"].strip().lower()
+            if tb_norm in ("failed", "key_mismatch"):
+                composite_score += 0.35
+                tag = "session:TOKEN_BINDING_FAILURE"
+                if tag not in all_indicators:
+                    all_indicators.append(tag)
+                by_source.setdefault("session", []).append("TOKEN_BINDING_FAILURE")
+                explanations.append(f"Token Binding: cryptographic token proof-of-possession binding validation failed (status: '{event['token_binding_status']}')")
 
         final_composite_score = min(round(composite_score, 2), 1.0)
         composite_verdict = "suspicious" if final_composite_score >= 0.50 else "benign"

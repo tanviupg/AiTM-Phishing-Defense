@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -106,6 +106,23 @@ class TestTLSAnalyzer(unittest.TestCase):
         self.assertFalse(result["is_anomaly"])
         self.assertEqual(result["details"]["target_host"], "login.microsoftonline.com")
 
+    def test_root_level_observed_tls_host_precedence(self):
+        # When certificate_telemetry lacks observed_hostname, root event['observed_tls_host'] takes precedence over redirect_chain[0]
+        event = {
+            "session_id": "TLS-ROOT-HOST-01",
+            "observed_tls_host": "login.microsoftonline.com",
+            "redirect_chain": ["arbitrary.entrypoint.com", "other.host.com"],
+            "certificate_telemetry": {
+                "subject_cn": "login.microsoftonline.com",
+                "not_before": "2026-01-01T00:00:00Z",
+                "not_after": "2026-12-31T23:59:59Z",
+            },
+        }
+        result = self.analyzer.analyze_event_tls(event, reference_time=self.ref_time)
+        self.assertFalse(result["is_anomaly"])
+        self.assertEqual(result["details"]["target_host"], "login.microsoftonline.com")
+        self.assertNotIn("CERT_HOSTNAME_MISMATCH", result["indicators"])
+
     def test_hostname_wildcard_matching(self):
         event = {
             "session_id": "TLS-WILDCARD-01",
@@ -123,6 +140,21 @@ class TestTLSAnalyzer(unittest.TestCase):
 
         self.assertFalse(result["is_anomaly"])
         self.assertNotIn("CERT_HOSTNAME_MISMATCH", result["indicators"])
+
+    def test_reject_multilevel_wildcard_matching(self):
+        # RFC 6125: *.corp.net matches sso.corp.net, but must NOT match deep.sub.corp.net
+        event = {
+            "session_id": "TLS-DEEP-WILDCARD-01",
+            "redirect_chain": ["deep.sub.corp.net"],
+            "certificate_telemetry": {
+                "subject_cn": "*.corp.net",
+                "not_before": "2026-01-01T00:00:00Z",
+                "not_after": "2026-12-31T23:59:59Z",
+            },
+        }
+        result = self.analyzer.analyze_event_tls(event, reference_time=self.ref_time)
+        self.assertTrue(result["is_anomaly"])
+        self.assertIn("CERT_HOSTNAME_MISMATCH", result["indicators"])
 
     def test_trusted_idp_host_allowlist_check(self):
         analyzer_with_trust = TLSAnalyzer(expected_trusted_hosts=["login.microsoftonline.com"])
@@ -190,6 +222,40 @@ class TestTLSAnalyzer(unittest.TestCase):
 
         self.assertTrue(result["is_anomaly"])
         self.assertIn("CERT_NOT_YET_VALID", result["indicators"])
+
+    def test_numeric_epoch_certificate_timestamps(self):
+        # Valid cert with numeric epoch timestamps
+        epoch_before = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp()
+        epoch_after = datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc).timestamp()
+
+        event_valid = {
+            "session_id": "TLS-EPOCH-VALID",
+            "redirect_chain": ["idp.example.com"],
+            "certificate_telemetry": {
+                "subject_cn": "idp.example.com",
+                "not_before": epoch_before,
+                "not_after": epoch_after,
+            },
+        }
+        res_valid = self.analyzer.analyze_event_tls(event_valid, reference_time=self.ref_time)
+        self.assertFalse(res_valid["is_anomaly"])
+        self.assertNotIn("MALFORMED_CERTIFICATE_DATE", res_valid["indicators"])
+        self.assertNotIn("CERT_EXPIRED", res_valid["indicators"])
+
+        # Expired cert with numeric epoch timestamp
+        epoch_expired = datetime(2026, 8, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp()
+        event_expired = {
+            "session_id": "TLS-EPOCH-EXPIRED",
+            "redirect_chain": ["idp.example.com"],
+            "certificate_telemetry": {
+                "subject_cn": "idp.example.com",
+                "not_before": epoch_before,
+                "not_after": epoch_expired,
+            },
+        }
+        res_expired = self.analyzer.analyze_event_tls(event_expired, reference_time=self.ref_time)
+        self.assertTrue(res_expired["is_anomaly"])
+        self.assertIn("CERT_EXPIRED", res_expired["indicators"])
 
     # -------------------------------------------------------------
     # 4. Untrusted Self-Signed & Enterprise Proxy Exemption
@@ -320,6 +386,15 @@ class TestTLSAnalyzer(unittest.TestCase):
 
         self.assertFalse(result["is_anomaly"])
         self.assertIn("MALFORMED_CERTIFICATE_TELEMETRY", result["indicators"])
+
+    def test_analyze_event_tls_rejects_non_dictionary_event(self):
+        with self.assertRaises(ValueError) as ctx:
+            self.analyzer.analyze_event_tls(["not", "a", "dict"])
+        self.assertIn("event must be a dictionary", str(ctx.exception))
+
+        with self.assertRaises(ValueError) as ctx:
+            self.analyzer.analyze_event_tls(None)
+        self.assertIn("event must be a dictionary", str(ctx.exception))
 
     # -------------------------------------------------------------
     # 8. Backward Compatibility with Legacy Events
