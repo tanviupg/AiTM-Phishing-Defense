@@ -5,13 +5,19 @@ and other microservices to query defensive recommendations, hardening checklists
 and technical FIDO2/Passkey guidance.
 """
 
+import sys
 from typing import Any, Optional
 import json
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 try:
     from fastapi import FastAPI, HTTPException, Body
     from fastapi.middleware.cors import CORSMiddleware
-    from fastapi.responses import JSONResponse
+    from fastapi.responses import HTMLResponse, JSONResponse
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
@@ -20,9 +26,27 @@ from module3_hardening.recommendation_engine import HardeningEngine
 from module3_hardening.hardening_checklist import HardeningChecklist
 from module3_hardening.auth_defense import AuthDefenseKnowledgeBase
 
+# Optional imports from Module 2 for unified pipeline evaluation
+try:
+    from module2_detection.detector import AiTMDetector
+    from module2_detection.session_tracker import SessionTracker
+    from module2_detection.tls_analyzer import TLSAnalyzer
+    MODULE2_AVAILABLE = True
+except ImportError:
+    MODULE2_AVAILABLE = False
+
 engine = HardeningEngine()
 checklist = HardeningChecklist()
 kb = AuthDefenseKnowledgeBase()
+
+if MODULE2_AVAILABLE:
+    shared_detector = AiTMDetector()
+    shared_session_tracker = SessionTracker()
+    shared_tls_analyzer = TLSAnalyzer()
+else:
+    shared_detector = None
+    shared_session_tracker = None
+    shared_tls_analyzer = None
 
 
 def get_recommendations_for_event(detection_result: dict[str, Any]) -> dict[str, Any]:
@@ -66,6 +90,58 @@ if FASTAPI_AVAILABLE:
             "owner": "Vaishnavi",
             "branch": "vaishnavi/hardening",
         }
+
+    @app.get("/", response_class=HTMLResponse)
+    def get_dashboard() -> HTMLResponse:
+        """Serves the interactive SOC Detection & Hardening Web UI."""
+        dashboard_path = Path(__file__).parent / "static" / "dashboard.html"
+        if not dashboard_path.exists():
+            return HTMLResponse("<h2>Dashboard HTML not found.</h2>", status_code=404)
+        return HTMLResponse(content=dashboard_path.read_text(encoding="utf-8"))
+
+    @app.get("/api/events")
+    def get_sample_events() -> list[dict[str, Any]]:
+        """Returns synthetic authentication events from Module 1."""
+        events_path = Path(__file__).resolve().parent.parent / "module1_aitm_poc" / "events" / "sample_events.json"
+        if events_path.exists():
+            with open(events_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        return []
+
+    @app.post("/api/pipeline/evaluate")
+    def evaluate_pipeline(event: dict[str, Any] = Body(...)) -> dict[str, Any]:
+        """
+        Runs the end-to-end pipeline:
+        Event (M1) -> Composite Detection (M2) -> Defense & Hardening Plan (M3).
+        """
+        try:
+            if MODULE2_AVAILABLE and shared_detector:
+                detection_result = shared_detector.analyze_event_composite(
+                    event,
+                    session_tracker=shared_session_tracker,
+                    tls_analyzer=shared_tls_analyzer,
+                )
+            else:
+                detection_result = {
+                    "session_id": event.get("session_id", "MANUAL"),
+                    "risk_score": 0.85 if event.get("scenario") == "suspicious_simulation" else 0.0,
+                    "risk_level": "HIGH" if event.get("scenario") == "suspicious_simulation" else "LOW",
+                    "signals": {
+                        "tls_anomaly": bool(event.get("tls_anomaly")),
+                        "redirect_anomaly": bool(event.get("redirect_count", 0) > 3),
+                        "replay_indicator": bool(event.get("replay_indicator")),
+                    },
+                    "composite_explanation": "Evaluated using heuristic pipeline",
+                }
+
+            plan = engine.evaluate_detection(detection_result)
+            return {
+                "event": event,
+                "detection": detection_result,
+                "plan": plan.to_dict(),
+            }
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     @app.post("/api/defense/recommendations")
     def generate_recommendations(payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
