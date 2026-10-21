@@ -1,0 +1,31 @@
+{
+  "required_fields": [
+    "session_id",
+    "timestamp",
+    "auth_result",
+    "redirect_count",
+    "redirect_chain",
+    "tls_anomaly",
+    "replay_indicator",
+    "source_ip",
+    "device_id",
+    "scenario"
+  ],
+  "field_types": {
+    "session_id": "string",
+    "timestamp": "ISO-8601 datetime",
+    "auth_result": "string",
+    "redirect_count": "integer",
+    "redirect_chain": "array of strings",
+    "tls_anomaly": "boolean",
+    "replay_indicator": "boolean",
+    "source_ip": "string",
+    "device_id": "string",
+    "scenario": "string"
+  },
+  "scenarios": [
+    "normal",
+    "suspicious_simulation"
+  ],
+  "purpose": "Shared contract between the simulated event generator and the detection module. Uses synthetic lab data only."
+}
