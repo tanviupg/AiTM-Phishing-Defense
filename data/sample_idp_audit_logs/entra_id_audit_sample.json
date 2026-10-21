@@ -1,0 +1,65 @@
+[
+  {
+    "id": "entra-signin-benign-001",
+    "createdDateTime": "2026-10-21T10:15:00Z",
+    "userPrincipalName": "john.smith@contoso.com",
+    "ipAddress": "198.51.100.15",
+    "clientAppUsed": "Browser",
+    "location": {
+      "city": "London",
+      "countryOrRegion": "GB"
+    },
+    "deviceDetail": {
+      "deviceId": "DEV-WIN-101",
+      "operatingSystem": "Windows 11",
+      "browser": "Edge 120.0",
+      "isCompliant": true,
+      "isManaged": true
+    },
+    "status": {
+      "errorCode": 0,
+      "failureReason": null
+    },
+    "appliedConditionalAccessPolicies": [
+      {
+        "displayName": "Require Compliant Device",
+        "result": "success"
+      }
+    ],
+    "tokenBindingStatus": "valid"
+  },
+  {
+    "id": "entra-signin-suspicious-002",
+    "createdDateTime": "2026-10-21T10:16:30Z",
+    "userPrincipalName": "john.smith@contoso.com",
+    "ipAddress": "203.0.113.88",
+    "clientAppUsed": "Browser",
+    "location": {
+      "city": "Frankfurt",
+      "countryOrRegion": "DE"
+    },
+    "deviceDetail": {
+      "deviceId": "UNKNOWN-DEVICE",
+      "operatingSystem": "Linux",
+      "browser": "Python-urllib/3.10",
+      "isCompliant": false,
+      "isManaged": false
+    },
+    "status": {
+      "errorCode": 0,
+      "failureReason": null
+    },
+    "appliedConditionalAccessPolicies": [
+      {
+        "displayName": "Require Compliant Device",
+        "result": "notApplied"
+      }
+    ],
+    "tokenBindingStatus": "failed",
+    "redirectChain": [
+      "login.microsoftonline.com",
+      "login-contoso-auth.phish-proxy.net",
+      "login.microsoftonline.com"
+    ]
+  }
+]

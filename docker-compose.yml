@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  aitm-defense-platform:
+    build: .
+    container_name: aitm_phishing_defense
+    ports:
+      - "8000:8000"  # SOC Dashboard & REST API
+      - "5001:5001"  # Mock IdP
+      - "5002:5002"  # AiTM Reverse Proxy
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

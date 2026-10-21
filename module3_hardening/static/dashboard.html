@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AiTM Sentinel - Enterprise SOC Command Center & Defense Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-darkest: #070B12;
+      --bg-card: #0F172A;
+      --bg-card-hover: #162036;
+      --bg-input: #0B1120;
+      --border-color: #1E293B;
+      --border-glow: #334155;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      
+      --cyan: #00F2FE;
+      --cyan-glow: rgba(0, 242, 254, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --amber: #F59E0B;
+      --amber-glow: rgba(245, 158, 11, 0.25);
+      --crimson: #EF4444;
+      --crimson-glow: rgba(239, 68, 68, 0.25);
+      --purple: #8B5CF6;
+      --purple-glow: rgba(139, 92, 246, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-darkest);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.75rem 1.75rem;
+    }
+
+    .header-container {
+      max-width: 1560px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      box-shadow: 0 0 20px var(--cyan-glow);
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(0, 242, 254, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      letter-spacing: 0.06em;
+    }
+
+    .env-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .pulsing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .team-badge-group {
+      display: flex;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      margin-top: 0.15rem;
+    }
+
+    .team-tag {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+    .team-tag span {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0.3rem;
+      background: rgba(11, 17, 32, 0.8);
+      padding: 0.3rem;
+      border-radius: 9px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .nav-tab {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab.active {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(139, 92, 246, 0.2));
+      color: var(--cyan);
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1560px;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Generic UI Elements */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.35rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.2), transparent);
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      padding: 0.55rem 1.15rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), #0284C7);
+      color: #030712;
+      font-weight: 700;
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+    .btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--crimson), #DC2626);
+      color: #FFF;
+      box-shadow: 0 0 14px var(--crimson-glow);
+    }
+    .btn-danger:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--border-glow);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--emerald), #059669);
+      color: #030712;
+      font-weight: 700;
+      box-shadow: 0 0 14px var(--emerald-glow);
+    }
+
+    /* Metric Summary Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.15rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 242, 254, 0.4);
+    }
+
+    .metric-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+    }
+    .metric-icon.alert { background: rgba(239, 68, 68, 0.15); color: var(--crimson); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .metric-icon.events { background: rgba(0, 242, 254, 0.15); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.3); }
+    .metric-icon.sessions { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .metric-icon.contained { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .metric-info h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .metric-info .metric-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+      margin-top: 0.2rem;
+    }
+
+    /* Tab switching */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: var(--crimson); border: 1px solid var(--crimson); }
+    .badge-high { background: rgba(239, 68, 68, 0.15); color: var(--crimson); border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-medium { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-low { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-contained { background: rgba(139, 92, 246, 0.2); color: var(--purple); border: 1px solid var(--purple); }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 0.75rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    th {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+      color: var(--text-main);
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Mathematical Formula Box */
+    .formula-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(11, 17, 32, 0.95));
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      box-shadow: 0 0 25px rgba(0, 242, 254, 0.1);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .formula-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+    }
+    .formula-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .formula-chips {
+      display: flex;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+    .formula-chip {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .chip-active {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+      color: var(--cyan);
+    }
+    .chip-val {
+      font-weight: 800;
+      background: rgba(0, 242, 254, 0.15);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* Hop Flow Nodes */
+    .hop-chain-container {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 1.15rem;
+      background: var(--bg-input);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      margin-bottom: 1.25rem;
+    }
+    .hop-node {
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      position: relative;
+    }
+    .hop-node .node-type {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.75;
+    }
+    .hop-normal { background: rgba(16, 185, 129, 0.12); border: 1px solid var(--emerald); color: var(--emerald); }
+    .hop-proxy { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--crimson); color: var(--crimson); box-shadow: 0 0 15px var(--crimson-glow); }
+    .hop-idp { background: rgba(0, 242, 254, 0.12); border: 1px solid var(--cyan); color: var(--cyan); }
+    .hop-arrow { color: var(--text-dim); font-size: 1.1rem; font-weight: 800; }
+
+    /* Score Gauge */
+    .gauge-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 0;
+    }
+    .score-circle {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: conic-gradient(var(--crimson) calc(var(--score-pct) * 1%), #1E293B 0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+    }
+    .score-circle::after {
+      content: '';
+      position: absolute;
+      width: 106px;
+      height: 106px;
+      border-radius: 50%;
+      background: var(--bg-card);
+    }
+    .score-value {
+      position: relative;
+      z-index: 2;
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.3rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .score-max {
+      position: relative;
+      z-index: 2;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Training & Quiz Cards */
+    .quiz-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.15rem;
+      margin-bottom: 1rem;
+    }
+    .quiz-q-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+    }
+    .quiz-option {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      padding: 0.65rem 1rem;
+      border-radius: 7px;
+      margin-bottom: 0.45rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .quiz-option:hover {
+      border-color: var(--cyan);
+      background: rgba(0, 242, 254, 0.06);
+    }
+    .quiz-option.selected {
+      border-color: var(--cyan);
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    .quiz-option.correct {
+      border-color: var(--emerald) !important;
+      background: rgba(16, 185, 129, 0.2) !important;
+      color: var(--emerald) !important;
+      font-weight: 700;
+    }
+    .quiz-option.wrong {
+      border-color: var(--crimson) !important;
+      background: rgba(239, 68, 68, 0.2) !important;
+      color: var(--crimson) !important;
+    }
+    .quiz-explanation {
+      margin-top: 0.65rem;
+      padding: 0.65rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-left: 3px solid var(--cyan);
+      display: none;
+    }
+
+    /* Modal / Inspector */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+    pre {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #93C5FD;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>
+          <div class="brand-title">
+            AiTM Sentinel
+            <span class="brand-badge">SOC Defense Platform</span>
+            <span class="env-badge"><span class="pulsing-dot"></span> Controlled Lab</span>
+          </div>
+          <div class="team-badge-group">
+            <span class="team-tag">M1: <span>Tanvi</span> (Lab Simulation)</span>
+            <span class="team-tag">M2: <span>Devyani</span> (Detection Engine)</span>
+            <span class="team-tag">M3: <span>Vaishnavi</span> (FIDO2 Hardening)</span>
+            <span class="team-tag">M4: <span>Josna</span> (SOC Dashboard)</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('command')">
+          <span>📊</span> Command Centre
+        </button>
+        <button class="nav-tab" onclick="switchTab('lab')">
+          <span>🧪</span> Detection Lab
+        </button>
+        <button class="nav-tab" onclick="switchTab('events')">
+          <span>🔍</span> Event Explorer
+        </button>
+        <button class="nav-tab" onclick="switchTab('incidents')">
+          <span>🚨</span> Incidents
+        </button>
+        <button class="nav-tab" onclick="switchTab('sessions')">
+          <span>🔑</span> Sessions & Containment
+        </button>
+        <button class="nav-tab" onclick="switchTab('rules')">
+          <span>⚙️</span> Detection Rules
+        </button>
+        <button class="nav-tab" onclick="switchTab('hardening')">
+          <span>🛡️</span> FIDO2 Hardening
+        </button>
+        <button class="nav-tab" onclick="switchTab('training')">
+          <span>🎓</span> User Training & Quiz
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- =====================================================================
+         SCREEN 01: COMMAND CENTRE
+         ===================================================================== -->
+    <section id="tab-command" class="tab-content active">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon alert">🚨</div>
+          <div class="metric-info">
+            <h4>Active Alerts</h4>
+            <div id="mActiveAlerts" class="metric-num">3</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon events">⚡</div>
+          <div class="metric-info">
+            <h4>Events Processed</h4>
+            <div id="mEventsProcessed" class="metric-num">128</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon sessions">⚠️</div>
+          <div class="metric-info">
+            <h4>Suspicious Sessions</h4>
+            <div id="mSuspiciousSessions" class="metric-num">2</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon contained">🛡️</div>
+          <div class="metric-info">
+            <h4>Contained / Revoked</h4>
+            <div id="mRevokedSessions" class="metric-num">1</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <!-- Recent Incidents Table -->
+        <div class="card">
+          <div class="card-title">
+            <span>Recent High-Priority Security Incidents</span>
+            <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="loadSummaryMetrics()">↻ Refresh</button>
+          </div>
+          <div class="card-subtitle">Live detection queue generated by Module 2 multi-signal correlation</div>
+          <div class="table-container">
+            <table id="recentIncidentsTable">
+              <thead>
+                <tr>
+                  <th>Incident ID</th>
+                  <th>Title & Attack Scenario</th>
+                  <th>Severity</th>
+                  <th>Risk Score</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="recentIncidentsBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Threat Breakdown Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Detection Breakdown</span>
+            <span style="font-size: 0.75rem; color: var(--cyan);">Formula R Signals</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-top: 0.5rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                <span>Domain & TLS Anomalies (D+C)</span>
+                <span id="statTlsAnomalies" style="font-weight: 700; color: var(--crimson);">0</span>
+              </div>
+              <div style="height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden;">
+                <div style="width: 75%; height: 100%; background: var(--crimson);"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                <span>Redirect Chain Cycles (E)</span>
+                <span id="statRedirAnomalies" style="font-weight: 700; color: var(--amber);">0</span>
+              </div>
+              <div style="height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden;">
+                <div style="width: 50%; height: 100%; background: var(--amber);"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                <span>Session Replay Indicators (S)</span>
+                <span id="statReplayAnomalies" style="font-weight: 700; color: var(--purple);">0</span>
+              </div>
+              <div style="height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden;">
+                <div style="width: 85%; height: 100%; background: var(--purple);"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; padding: 0.85rem; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">SOC Operator Action</div>
+            <p style="font-size: 0.8rem; color: var(--text-main);">One-click session containment and token invalidation are live on port 8000.</p>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem; justify-content: center;" onclick="switchTab('lab')">
+              <span>🚀</span> Open Detection Lab
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SCREEN 02: DETECTION LAB & SCENARIOS
+         ===================================================================== -->
+    <section id="tab-lab" class="tab-content">
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">
+          <span>AiTM Detection Lab: Controlled Scenario Runner</span>
+          <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="resetLabData()">↻ Reset Lab Data</button>
+        </div>
+        <div class="card-subtitle">Run safe synthetic authentication scenarios through Module 1 (Relay), Module 2 (Detection), and Module 3 (Hardening)</div>
+        
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Select Scenario:</label>
+          <select id="labScenarioSelect" style="flex: 1; min-width: 320px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <!-- Scenarios injected via JS -->
+          </select>
+          <button class="btn btn-primary" onclick="runSelectedScenario()">
+            <span>⚡</span> Execute Scenario
+          </button>
+        </div>
+
+        <div id="scenarioDescriptionBox" style="padding: 0.85rem 1rem; background: var(--bg-input); border-radius: 8px; border-left: 3px solid var(--cyan); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Loading scenario details...
+        </div>
+
+        <!-- Hop-by-Hop Flow Diagram -->
+        <div class="card-title" style="font-size: 0.92rem; margin-bottom: 0.5rem;">Authentication Flow Visualizer</div>
+        <div id="hopChainContainer" class="hop-chain-container">
+          <!-- Hops injected here -->
+        </div>
+
+        <!-- Formula Card -->
+        <div class="formula-card">
+          <div class="formula-header">
+            <span class="formula-title">Explainable Scoring: R = 30D + 20C + 25S + 15E + 10A</span>
+            <span id="formulaScoreBadge" class="badge badge-high" style="font-size: 0.85rem;">Score: 70/100</span>
+          </div>
+          <div id="formulaChipsContainer" class="formula-chips">
+            <!-- Formula variables injected here -->
+          </div>
+        </div>
+
+        <!-- Execution Result Details -->
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem;">
+          <div class="card" style="background: var(--bg-input);">
+            <div class="gauge-wrapper">
+              <div id="labScoreCircle" class="score-circle" style="--score-pct: 70;">
+                <span id="labScoreText" class="score-value">70</span>
+                <span class="score-max">/ 100</span>
+              </div>
+              <div id="labRiskLevelBadge" class="badge badge-high" style="margin-top: 0.75rem;">HIGH RISK</div>
+              <div id="labTestPassedBadge" style="margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--emerald);">
+                ✓ TEST PASSED (MATCHES THREAT MODEL)
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="background: var(--bg-input);">
+            <div class="card-title" style="font-size: 0.92rem;">Recommended Mitigations & Response</div>
+            <div id="labRecommendationsList" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+              <!-- Recommendations -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SCREEN 03: EVENT EXPLORER
+         ===================================================================== -->
+    <section id="tab-events" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>Event Explorer & Telemetry Ingestion</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <input id="eventSearchInput" type="text" placeholder="Search session, IP, or user..." style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.82rem;" onkeyup="filterEvents()">
+            <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="loadEventsExplorer()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="card-subtitle">Normalized synthetic and mock IdP audit events stored in persistent SQLite</div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Event ID</th>
+                <th>Timestamp</th>
+                <th>User Alias</th>
+                <th>Scenario</th>
+                <th>Redirect Count</th>
+                <th>TLS Anomaly</th>
+                <th>Replay</th>
+                <th>Severity</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SCREEN 04: INCIDENT INVESTIGATION
+         ===================================================================== -->
+    <section id="tab-incidents" class="tab-content">
+      <div style="display: grid; grid-template-columns: 380px 1fr; gap: 1.5rem;">
+        <!-- Incident Queue -->
+        <div class="card">
+          <div class="card-title">
+            <span>Incident Queue</span>
+            <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="loadIncidents()">↻</button>
+          </div>
+          <div id="incidentQueueList" style="display: flex; flex-direction: column; gap: 0.65rem; max-height: 650px; overflow-y: auto;">
+            <!-- Incidents list -->
+          </div>
+        </div>
+
+        <!-- Incident Details & Timeline -->
+        <div class="card" id="incidentDetailPanel">
+          <div class="card-title">
+            <span id="incDetailTitle">Select an Incident to Investigate</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btnExportDossier" class="btn btn-secondary" style="font-size: 0.78rem;" onclick="exportCurrentDossier()">📄 Export Dossier</button>
+              <button id="btnContainIncident" class="btn btn-danger" style="font-size: 0.78rem;" onclick="containSelectedIncident()">🛡️ Revoke Session</button>
+            </div>
+          </div>
+          
+          <div id="incDetailMeta" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            Click any incident on the left queue to view chronological timeline, signals, and mathematical scoring.
+          </div>
+
+          <div class="card-title" style="font-size: 0.92rem; margin-top: 1rem;">Investigation Timeline</div>
+          <div id="incTimelineContainer" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <!-- Timeline events -->
+          </div>
+
+          <div class="card-title" style="font-size: 0.92rem;">Contributing Signals & Mitigation Plan</div>
+          <div id="incDetailRecommendations" style="font-size: 0.85rem; color: var(--text-main);">
+            <!-- Recs -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SCREEN 05: SESSION MANAGEMENT & CONTAINMENT
+         ===================================================================== -->
+    <section id="tab-sessions" class="tab-content">
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">
+          <span>Active Synthetic Sessions & Token Protection</span>
+          <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="loadSessions()">↻ Refresh</button>
+        </div>
+        <div class="card-subtitle">Manage session tokens, test defensive revocation, and verify that token replay attempts are blocked</div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Session ID</th>
+                <th>User Alias</th>
+                <th>Source IP</th>
+                <th>Client Context / UA</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sessionsTableBody">
+              <!-- Sessions dynamically loaded -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Containment Audit Log -->
+      <div class="card">
+        <div class="card-title">Containment Audit Trail Log</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Session ID</th>
+                <th>Action</th>
+                <th>Operator</th>
+                <th>Status</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="containmentAuditBody">
+              <!-- Audit records -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SCREEN 06: DETECTION RULES
+         ===================================================================== -->
+    <section id="tab-rules" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>Detection Engine Rules (DET-001 to DET-005)</span>
+          <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="loadRules()">↻ Refresh</button>
+        </div>
+        <div class="card-subtitle">Configurable detection thresholds powering the explainable risk scoring formula</div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Rule ID</th>
+                <th>Rule Name</th>
+                <th>Description</th>
+                <th>Severity</th>
+                <th>Weight (Formula Contribution)</th>
+                <th>Condition</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="rulesTableBody">
+              <!-- Injected rules -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SCREEN 07: SECURITY HARDENING & FIDO2 CHECKLIST
+         ===================================================================== -->
+    <section id="tab-hardening" class="tab-content">
+      <div style="display: grid; grid-template-columns: 1fr 420px; gap: 1.5rem;">
+        <!-- Checklist Table -->
+        <div class="card">
+          <div class="card-title">
+            <span>CISA & NIST SP 800-63B Hardening Checklist</span>
+            <span style="font-size: 0.75rem; color: var(--emerald);">Click status to toggle</span>
+          </div>
+          <div class="card-subtitle">Machine-readable mitigation controls against AiTM reverse proxies</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Control ID</th>
+                  <th>Title & Mitigation</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="checklistTableBody">
+                <!-- Checklist injected -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cryptographic Origin Binding Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>FIDO2 Origin-Binding Security</span>
+            <span style="font-size: 0.75rem; color: var(--cyan);">Cryptographic Proof</span>
+          </div>
+          <div style="padding: 1rem; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.82rem; line-height: 1.6; margin-bottom: 1rem;">
+            <p><strong>Why Passkeys Cannot Be Phished:</strong></p>
+            <p style="margin-top: 0.4rem; color: var(--text-muted);">In FIDO2/WebAuthn, the browser signs the genuine destination domain (<code>rpId</code>) into <code>clientDataJSON.origin</code>.</p>
+            <p style="margin-top: 0.4rem; color: var(--text-muted);">When an attacker's proxy (e.g. <code>evil-login.net</code>) forwards the signature to <code>login.microsoftonline.com</code>, the origin hashes do NOT match. The IdP rejects the login cryptographically!</p>
+          </div>
+
+          <div class="card-title" style="font-size: 0.92rem;">Cryptographic Token Binding (RFC 9449 DPoP)</div>
+          <div style="padding: 1rem; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.82rem; line-height: 1.6;">
+            <p><strong>Proof of Possession:</strong> Even if a reverse proxy captures a session token, the token is cryptographically bound to the employee device's private key. Replaying the token from the attacker's machine triggers a token-binding failure.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SCREEN 08: USER TRAINING & CERTIFICATION QUIZ
+         ===================================================================== -->
+    <section id="tab-training" class="tab-content">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <!-- Lessons Column -->
+        <div class="card">
+          <div class="card-title">Educational Lessons: AiTM Phishing Defense</div>
+          <div id="lessonsContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Injected lessons -->
+          </div>
+        </div>
+
+        <!-- Interactive Quiz Column -->
+        <div class="card">
+          <div class="card-title">
+            <span>Interactive Certification Quiz (8 Questions)</span>
+            <span id="quizScoreBadge" class="badge badge-low" style="display: none;">Score: 0%</span>
+          </div>
+          <div class="card-subtitle">Test your understanding of reverse proxies, origin binding, and session revocation</div>
+
+          <div id="quizContainer" style="max-height: 550px; overflow-y: auto; padding-right: 0.5rem;">
+            <!-- Injected quiz questions -->
+          </div>
+
+          <button class="btn btn-success" style="width: 100%; margin-top: 1rem; justify-content: center;" onclick="submitQuiz()">
+            <span>🏆</span> Submit Quiz & Verify Answers
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal / Dossier Viewer -->
+  <div id="modalOverlay" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="card-title">
+        <span id="modalTitle">Incident Dossier</span>
+        <button class="btn btn-secondary" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="closeModal()">Close</button>
+      </div>
+      <pre id="modalPreContent">Loading...</pre>
+    </div>
+  </div>
+
+  <script>
+    let activeTab = 'command';
+    let currentIncidentId = null;
+    let selectedQuizAnswers = {};
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      const activeBtn = Array.from(document.querySelectorAll('.nav-tab')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.add('active');
+      activeTab = tabId;
+
+      if (tabId === 'command') loadSummaryMetrics();
+      if (tabId === 'lab') loadLabScenarios();
+      if (tabId === 'events') loadEventsExplorer();
+      if (tabId === 'incidents') loadIncidents();
+      if (tabId === 'sessions') loadSessions();
+      if (tabId === 'rules') loadRules();
+      if (tabId === 'hardening') loadHardeningChecklist();
+      if (tabId === 'training') loadTraining();
+    }
+
+    // --- SCREEN 01: SUMMARY METRICS ---
+    async function loadSummaryMetrics() {
+      try {
+        const res = await fetch('/api/v1/dashboard/summary');
+        const data = await res.json();
+        
+        document.getElementById('mActiveAlerts').innerText = data.summary_cards.active_alerts;
+        document.getElementById('mEventsProcessed').innerText = data.summary_cards.events_processed;
+        document.getElementById('mSuspiciousSessions').innerText = data.summary_cards.suspicious_sessions;
+        document.getElementById('mRevokedSessions').innerText = data.summary_cards.revoked_sessions;
+
+        document.getElementById('statTlsAnomalies').innerText = data.detection_breakdown.domain_tls_anomalies;
+        document.getElementById('statRedirAnomalies').innerText = data.detection_breakdown.redirect_chain_anomalies;
+        document.getElementById('statReplayAnomalies').innerText = data.detection_breakdown.session_replay_indicators;
+
+        const body = document.getElementById('recentIncidentsBody');
+        body.innerHTML = '';
+        if (data.recent_incidents && data.recent_incidents.length > 0) {
+          data.recent_incidents.forEach(inc => {
+            const tr = document.createElement('tr');
+            const badgeClass = inc.risk_level === 'CRITICAL' ? 'badge-critical' : (inc.risk_level === 'HIGH' ? 'badge-high' : 'badge-medium');
+            tr.innerHTML = `
+              <td style="font-family: monospace; font-weight: 700; color: var(--cyan);">${inc.incident_id}</td>
+              <td><strong>${inc.title}</strong><div style="font-size: 0.75rem; color: var(--text-muted);">${inc.user_alias} | ${inc.scenario}</div></td>
+              <td><span class="badge ${badgeClass}">${inc.severity}</span></td>
+              <td><strong style="color: ${inc.risk_score >= 60 ? 'var(--crimson)' : 'var(--amber)'}">${inc.risk_score}/100</strong></td>
+              <td><span class="badge ${inc.status === 'Contained' ? 'badge-contained' : 'badge-high'}">${inc.status}</span></td>
+              <td><button class="btn btn-secondary" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="investigateIncident('${inc.incident_id}')">Investigate</button></td>
+            `;
+            body.appendChild(tr);
+          });
+        } else {
+          body.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No incidents recorded yet. Run a scenario in the Detection Lab!</td></tr>';
+        }
+      } catch (err) {
+        console.error('Failed to load summary:', err);
+      }
+    }
+
+    // --- SCREEN 02: DETECTION LAB ---
+    let cachedScenarios = [];
+    async function loadLabScenarios() {
+      try {
+        const res = await fetch('/api/v1/lab/scenarios');
+        cachedScenarios = await res.json();
+        const select = document.getElementById('labScenarioSelect');
+        select.innerHTML = '';
+        cachedScenarios.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.scenario_id;
+          opt.innerText = `${s.scenario_id} — ${s.title} (${s.category} / ${s.expected_risk_level})`;
+          select.appendChild(opt);
+        });
+
+        select.onchange = () => updateScenarioDescription();
+        updateScenarioDescription();
+      } catch (err) {
+        console.error('Failed to load lab scenarios:', err);
+      }
+    }
+
+    function updateScenarioDescription() {
+      const select = document.getElementById('labScenarioSelect');
+      const sc = cachedScenarios.find(s => s.scenario_id === select.value);
+      if (sc) {
+        document.getElementById('scenarioDescriptionBox').innerHTML = `
+          <strong>${sc.title}:</strong> ${sc.description}<br>
+          <span style="font-size: 0.78rem; color: var(--cyan);">Target User: ${sc.synthetic_user} | Expected Alert: ${sc.expected_alert}</span>
+        `;
+      }
+    }
+
+    async function runSelectedScenario() {
+      const select = document.getElementById('labScenarioSelect');
+      const scenarioId = select.value;
+      try {
+        const res = await fetch(`/api/v1/lab/scenarios/${scenarioId}/run`, { method: 'POST' });
+        const data = await res.json();
+        renderLabResult(data);
+      } catch (err) {
+        alert('Scenario execution failed: ' + err.message);
+      }
+    }
+
+    function renderLabResult(data) {
+      const fb = data.formula_scoring;
+      const obs = data.observed_outcome;
+      
+      // Update Score circle
+      const scoreCircle = document.getElementById('labScoreCircle');
+      scoreCircle.style.setProperty('--score-pct', fb.score_out_of_100);
+      scoreCircle.style.background = `conic-gradient(${fb.score_out_of_100 >= 60 ? 'var(--crimson)' : (fb.score_out_of_100 >= 30 ? 'var(--amber)' : 'var(--emerald)')} calc(${fb.score_out_of_100} * 1%), #1E293B 0)`;
+      document.getElementById('labScoreText').innerText = fb.score_out_of_100;
+      
+      const badge = document.getElementById('labRiskLevelBadge');
+      badge.innerText = `${obs.risk_level} RISK`;
+      badge.className = `badge ${obs.risk_level === 'CRITICAL' ? 'badge-critical' : (obs.risk_level === 'HIGH' ? 'badge-high' : (obs.risk_level === 'MEDIUM' ? 'badge-medium' : 'badge-low'))}`;
+      
+      document.getElementById('formulaScoreBadge').innerText = `Score: ${fb.score_out_of_100}/100`;
+
+      // Render formula chips
+      const chips = document.getElementById('formulaChipsContainer');
+      chips.innerHTML = `
+        <div class="formula-chip ${fb.variables.D ? 'chip-active' : ''}"><span>D (Domain)</span> <span class="chip-val">+${fb.contributions.D}</span></div>
+        <div class="formula-chip ${fb.variables.C ? 'chip-active' : ''}"><span>C (Cert/TLS)</span> <span class="chip-val">+${fb.contributions.C}</span></div>
+        <div class="formula-chip ${fb.variables.S ? 'chip-active' : ''}"><span>S (Replay)</span> <span class="chip-val">+${fb.contributions.S}</span></div>
+        <div class="formula-chip ${fb.variables.E ? 'chip-active' : ''}"><span>E (Redirects)</span> <span class="chip-val">+${fb.contributions.E}</span></div>
+        <div class="formula-chip ${fb.variables.A ? 'chip-active' : ''}"><span>A (Context)</span> <span class="chip-val">+${fb.contributions.A}</span></div>
+      `;
+
+      // Render hop flow
+      const hopContainer = document.getElementById('hopChainContainer');
+      hopContainer.innerHTML = '';
+      const sc = cachedScenarios.find(s => s.scenario_id === data.scenario_id);
+      
+      // Node 1: Client
+      const n1 = document.createElement('div');
+      n1.className = 'hop-node hop-normal';
+      n1.innerHTML = `<span class="node-type">CLIENT</span>${data.synthetic_user}`;
+      hopContainer.appendChild(n1);
+
+      // Node 2: If proxy or direct
+      const isPhish = data.scenario_id !== 'SCN-001' && data.scenario_id !== 'SCN-006';
+      const arrow1 = document.createElement('span');
+      arrow1.className = 'hop-arrow';
+      arrow1.innerText = '➔';
+      hopContainer.appendChild(arrow1);
+
+      if (isPhish) {
+        const n2 = document.createElement('div');
+        n2.className = 'hop-node hop-proxy';
+        n2.innerHTML = `<span class="node-type">⚠️ REVERSE PROXY RELAY</span>login.microsoftonline.proxy.invalid`;
+        hopContainer.appendChild(n2);
+
+        const arrow2 = document.createElement('span');
+        arrow2.className = 'hop-arrow';
+        arrow2.innerText = '➔';
+        hopContainer.appendChild(arrow2);
+      }
+
+      // Node 3: Real IdP
+      const n3 = document.createElement('div');
+      n3.className = 'hop-node hop-idp';
+      n3.innerHTML = `<span class="node-type">GENUINE IDP</span>login.microsoftonline.com`;
+      hopContainer.appendChild(n3);
+
+      // Node 4: If replay
+      if (fb.variables.S) {
+        const arrow3 = document.createElement('span');
+        arrow3.className = 'hop-arrow';
+        arrow3.innerText = '➔';
+        hopContainer.appendChild(arrow3);
+
+        const n4 = document.createElement('div');
+        n4.className = 'hop-node hop-proxy';
+        n4.innerHTML = `<span class="node-type">⚠️ REPLAYED SESSION</span>Linux (Attacker Context)`;
+        hopContainer.appendChild(n4);
+      }
+
+      // Recommendations
+      const recList = document.getElementById('labRecommendationsList');
+      recList.innerHTML = '';
+      (data.defense_plan?.recommendations || []).forEach(r => {
+        const item = document.createElement('div');
+        item.style.padding = '0.5rem 0.75rem';
+        item.style.background = 'rgba(255, 255, 255, 0.03)';
+        item.style.borderRadius = '6px';
+        item.style.borderLeft = '3px solid var(--cyan)';
+        item.innerHTML = `<strong>Action:</strong> ${r}`;
+        recList.appendChild(item);
+      });
+    }
+
+    async function resetLabData() {
+      if (!confirm('Reset all lab telemetry, incidents, and sessions to clean baseline?')) return;
+      await fetch('/api/v1/lab/reset', { method: 'POST' });
+      alert('Lab data reset successfully.');
+      loadSummaryMetrics();
+    }
+
+    // --- SCREEN 03: EVENT EXPLORER ---
+    let cachedEvents = [];
+    async function loadEventsExplorer() {
+      try {
+        const res = await fetch('/api/v1/events?limit=50');
+        cachedEvents = await res.json();
+        renderEventsTable(cachedEvents);
+      } catch (err) {
+        console.error('Failed to load events:', err);
+      }
+    }
+
+    function renderEventsTable(events) {
+      const tbody = document.getElementById('eventsTableBody');
+      tbody.innerHTML = '';
+      events.forEach(e => {
+        const tr = document.createElement('tr');
+        const sevClass = e.severity === 'Critical' ? 'badge-critical' : (e.severity === 'High' ? 'badge-high' : 'badge-low');
+        tr.innerHTML = `
+          <td style="font-family: monospace; font-weight: 700; color: var(--cyan);">${e.event_id}</td>
+          <td style="font-size: 0.75rem; color: var(--text-muted);">${e.timestamp?.substring(0, 19).replace('T', ' ')}</td>
+          <td><strong>${e.user_alias || e.device_id}</strong></td>
+          <td><span class="badge badge-low" style="background: rgba(255,255,255,0.06);">${e.scenario}</span></td>
+          <td>${e.redirect_count} hops</td>
+          <td>${e.tls_anomaly ? '<span style="color: var(--crimson);">⚠️ Anomaly</span>' : '<span style="color: var(--emerald);">Clean</span>'}</td>
+          <td>${e.replay_indicator ? '<span style="color: var(--crimson);">⚠️ Replayed</span>' : 'None'}</td>
+          <td><span class="badge ${sevClass}">${e.severity}</span></td>
+          <td><button class="btn btn-secondary" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="viewRawEvent('${e.event_id}')">{ } JSON</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterEvents() {
+      const val = document.getElementById('eventSearchInput').value.toLowerCase();
+      const filtered = cachedEvents.filter(e => 
+        (e.event_id && e.event_id.toLowerCase().includes(val)) ||
+        (e.user_alias && e.user_alias.toLowerCase().includes(val)) ||
+        (e.source_ip && e.source_ip.toLowerCase().includes(val))
+      );
+      renderEventsTable(filtered);
+    }
+
+    function viewRawEvent(eventId) {
+      const ev = cachedEvents.find(e => e.event_id === eventId);
+      if (ev) {
+        document.getElementById('modalTitle').innerText = `Telemetry Event: ${eventId}`;
+        document.getElementById('modalPreContent').innerText = JSON.stringify(ev, null, 2);
+        document.getElementById('modalOverlay').style.display = 'flex';
+      }
+    }
+
+    // --- SCREEN 04: INCIDENT INVESTIGATION ---
+    async function loadIncidents() {
+      try {
+        const res = await fetch('/api/v1/incidents');
+        const incidents = await res.json();
+        const list = document.getElementById('incidentQueueList');
+        list.innerHTML = '';
+
+        if (incidents.length === 0) {
+          list.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 1rem;">No incidents found. Run a lab scenario!</div>';
+          return;
+        }
+
+        incidents.forEach(inc => {
+          const div = document.createElement('div');
+          div.style.padding = '0.85rem';
+          div.style.borderRadius = '8px';
+          div.style.background = currentIncidentId === inc.incident_id ? 'rgba(0, 242, 254, 0.12)' : 'var(--bg-input)';
+          div.style.border = currentIncidentId === inc.incident_id ? '1px solid var(--cyan)' : '1px solid var(--border-color)';
+          div.style.cursor = 'pointer';
+          div.onclick = () => investigateIncident(inc.incident_id);
+
+          div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+              <span style="font-family: monospace; font-weight: 700; color: var(--cyan); font-size: 0.8rem;">${inc.incident_id}</span>
+              <span class="badge ${inc.risk_level === 'CRITICAL' ? 'badge-critical' : 'badge-high'}">${inc.severity}</span>
+            </div>
+            <div style="font-weight: 700; font-size: 0.88rem;">${inc.title}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">${inc.user_alias} | Score: ${inc.risk_score}/100</div>
+          `;
+          list.appendChild(div);
+        });
+
+        if (!currentIncidentId && incidents.length > 0) {
+          investigateIncident(incidents[0].incident_id);
+        }
+      } catch (err) {
+        console.error('Failed to load incidents:', err);
+      }
+    }
+
+    async function investigateIncident(incidentId) {
+      currentIncidentId = incidentId;
+      switchTab('incidents');
+      try {
+        const res = await fetch(`/api/v1/incidents/${incidentId}`);
+        const inc = await res.json();
+        
+        document.getElementById('incDetailTitle').innerText = `${inc.incident_id} — ${inc.title}`;
+        document.getElementById('incDetailMeta').innerHTML = `
+          <strong>Status:</strong> ${inc.status} | <strong>User:</strong> ${inc.user_alias} | 
+          <strong>Score:</strong> <span style="color: var(--crimson); font-weight: 800;">${inc.risk_score}/100</span> | 
+          <strong>Session ID:</strong> ${inc.session_id} (${inc.session_current_status})
+        `;
+
+        // Timeline
+        const tl = document.getElementById('incTimelineContainer');
+        tl.innerHTML = '';
+        (inc.timeline || []).forEach((t, idx) => {
+          const item = document.createElement('div');
+          item.style.padding = '0.75rem 1rem';
+          item.style.background = 'var(--bg-input)';
+          item.style.borderRadius = '8px';
+          item.style.borderLeft = '3px solid ' + (idx === 0 ? 'var(--cyan)' : (idx === inc.timeline.length - 1 ? 'var(--crimson)' : 'var(--amber)'));
+          item.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+              <span style="font-weight: 700; text-transform: uppercase;">Step ${idx + 1}: ${t.stage}</span>
+              <span>${t.timestamp?.substring(0, 19).replace('T', ' ')}</span>
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-main);">${t.details}</div>
+          `;
+          tl.appendChild(item);
+        });
+
+        // Recommendations
+        const recDiv = document.getElementById('incDetailRecommendations');
+        recDiv.innerHTML = '<ul style="padding-left: 1.25rem; line-height: 1.7;">' + 
+          (inc.recommendations || []).map(r => `<li><strong>${r}</strong></li>`).join('') + '</ul>';
+
+      } catch (err) {
+        console.error('Failed to get incident details:', err);
+      }
+    }
+
+    async function exportCurrentDossier() {
+      if (!currentIncidentId) return alert('Select an incident first.');
+      const res = await fetch(`/api/v1/incidents/${currentIncidentId}/export`);
+      const text = await res.text();
+      document.getElementById('modalTitle').innerText = `Forensic Incident Dossier: ${currentIncidentId}`;
+      document.getElementById('modalPreContent').innerText = text;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    async function containSelectedIncident() {
+      if (!currentIncidentId) return;
+      const res = await fetch(`/api/v1/incidents/${currentIncidentId}`);
+      const inc = await res.json();
+      if (!confirm(`Execute defensive session revocation for session ${inc.session_id}?`)) return;
+
+      const revRes = await fetch(`/api/v1/sessions/${inc.session_id}/revoke`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ performed_by: 'SOC-Lead-Analyst' })
+      });
+      const revData = await revRes.json();
+      alert(`Defensive containment applied!\n${revData.message}`);
+      investigateIncident(currentIncidentId);
+      loadSummaryMetrics();
+    }
+
+    // --- SCREEN 05: SESSIONS & CONTAINMENT ---
+    async function loadSessions() {
+      try {
+        const res = await fetch('/api/v1/sessions');
+        const sessions = await res.json();
+        const tbody = document.getElementById('sessionsTableBody');
+        tbody.innerHTML = '';
+
+        sessions.forEach(s => {
+          const tr = document.createElement('tr');
+          const isRevoked = s.status === 'revoked';
+          tr.innerHTML = `
+            <td style="font-family: monospace; font-weight: 700; color: var(--cyan);">${s.session_id}</td>
+            <td>${s.user_alias}</td>
+            <td>${s.source_ip}</td>
+            <td style="font-size: 0.78rem; color: var(--text-muted);">${s.client_context?.substring(0, 35)}...</td>
+            <td><span class="badge ${isRevoked ? 'badge-contained' : 'badge-low'}">${s.status.toUpperCase()}</span></td>
+            <td>
+              <div style="display: flex; gap: 0.4rem;">
+                ${!isRevoked ? `<button class="btn btn-danger" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="revokeSession('${s.session_id}')">Revoke Token</button>` : ''}
+                <button class="btn btn-secondary" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="testSessionAccess('${s.session_id}')">Test Access</button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // Audit Log
+        const auditRes = await fetch('/api/v1/containment/audit');
+        const audits = await auditRes.json();
+        const aBody = document.getElementById('containmentAuditBody');
+        aBody.innerHTML = '';
+        audits.forEach(a => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-size: 0.75rem; color: var(--text-muted);">${a.timestamp?.substring(0, 19).replace('T', ' ')}</td>
+            <td style="font-family: monospace; font-weight: 700; color: var(--cyan);">${a.session_id}</td>
+            <td><span class="badge badge-contained">${a.action}</span></td>
+            <td>${a.performed_by}</td>
+            <td><span class="badge badge-low">${a.status}</span></td>
+            <td style="font-size: 0.8rem;">${a.details}</td>
+          `;
+          aBody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load sessions:', err);
+      }
+    }
+
+    async function revokeSession(sessionId) {
+      if (!confirm(`Revoke session ${sessionId}?`)) return;
+      await fetch(`/api/v1/sessions/${sessionId}/revoke`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ performed_by: 'SOC-Analyst' })
+      });
+      loadSessions();
+      loadSummaryMetrics();
+    }
+
+    async function testSessionAccess(sessionId) {
+      const res = await fetch(`/api/v1/sessions/${sessionId}/test_access`, { method: 'POST' });
+      const data = await res.json();
+      if (data.status_code === 401) {
+        alert(`🛡️ CONTAINMENT PROVEN!\nHTTP 401 UNAUTHORIZED\n${data.detail}`);
+      } else {
+        alert(`✅ SESSION ACTIVE\nHTTP 200 OK\n${data.detail}`);
+      }
+    }
+
+    // --- SCREEN 06: DETECTION RULES ---
+    async function loadRules() {
+      try {
+        const res = await fetch('/api/v1/rules');
+        const rules = await res.json();
+        const tbody = document.getElementById('rulesTableBody');
+        tbody.innerHTML = '';
+        rules.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-family: monospace; font-weight: 700; color: var(--cyan);">${r.rule_id}</td>
+            <td><strong>${r.name}</strong></td>
+            <td style="color: var(--text-muted); font-size: 0.82rem;">${r.description}</td>
+            <td><span class="badge ${r.severity === 'Critical' ? 'badge-critical' : (r.severity === 'High' ? 'badge-high' : 'badge-medium')}">${r.severity}</span></td>
+            <td><strong style="color: var(--cyan);">+${r.weight} pts</strong></td>
+            <td style="font-family: monospace; font-size: 0.75rem; color: #93C5FD;">${r.condition_desc}</td>
+            <td><span class="badge ${r.enabled ? 'badge-low' : 'badge-high'}">${r.enabled ? 'ACTIVE' : 'DISABLED'}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load rules:', err);
+      }
+    }
+
+    // --- SCREEN 07: HARDENING CHECKLIST ---
+    async function loadHardeningChecklist() {
+      try {
+        const res = await fetch('/api/v1/hardening/checklist');
+        const items = await res.json();
+        const tbody = document.getElementById('checklistTableBody');
+        tbody.innerHTML = '';
+        items.forEach(item => {
+          const tr = document.createElement('tr');
+          const isVer = item.status === 'Verified';
+          tr.innerHTML = `
+            <td style="font-family: monospace; font-weight: 700; color: var(--cyan);">${item.item_id}</td>
+            <td>
+              <strong>${item.title}</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">${item.description}</div>
+            </td>
+            <td><span style="font-size: 0.75rem; color: var(--purple); font-weight: 600;">${item.category}</span></td>
+            <td><span class="badge ${item.priority === 'CRITICAL' ? 'badge-critical' : 'badge-high'}">${item.priority}</span></td>
+            <td>
+              <button class="btn ${isVer ? 'btn-success' : 'btn-secondary'}" style="font-size: 0.72rem; padding: 0.2rem 0.6rem;" onclick="cycleChecklistStatus('${item.item_id}', '${item.status}')">
+                ${item.status}
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load checklist:', err);
+      }
+    }
+
+    async function cycleChecklistStatus(itemId, currentStatus) {
+      const nextStatus = currentStatus === 'Verified' ? 'In progress' : (currentStatus === 'In progress' ? 'Not assessed' : 'Verified');
+      await fetch(`/api/v1/hardening/checklist/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus })
+      });
+      loadHardeningChecklist();
+    }
+
+    // --- SCREEN 08: USER TRAINING & QUIZ ---
+    async function loadTraining() {
+      try {
+        const res = await fetch('/api/v1/training/modules');
+        const data = await res.json();
+
+        // Lessons
+        const lesContainer = document.getElementById('lessonsContainer');
+        lesContainer.innerHTML = '';
+        data.lessons.forEach(l => {
+          const card = document.createElement('div');
+          card.style.padding = '1.15rem';
+          card.style.background = 'var(--bg-input)';
+          card.style.borderRadius = '10px';
+          card.style.border = '1px solid var(--border-color)';
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <span style="font-weight: 700; font-size: 0.95rem; color: var(--cyan);">${l.title}</span>
+              <span class="badge badge-low" style="background: rgba(0,242,254,0.1); color: var(--cyan);">${l.category}</span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.65rem;">${l.summary}</p>
+            <div style="font-size: 0.78rem; padding: 0.5rem 0.75rem; background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--emerald); color: var(--emerald);">
+              <strong>Key Rule:</strong> ${l.key_takeaway}
+            </div>
+          `;
+          lesContainer.appendChild(card);
+        });
+
+        // Quiz Questions
+        const qContainer = document.getElementById('quizContainer');
+        qContainer.innerHTML = '';
+        data.questions.forEach((q, qIdx) => {
+          const card = document.createElement('div');
+          card.className = 'quiz-card';
+          card.id = `quiz-card-${q.question_id}`;
+          card.innerHTML = `
+            <div class="quiz-q-title">Q${qIdx + 1}. ${q.question}</div>
+            <div class="quiz-options-group" data-qid="${q.question_id}">
+              ${q.options.map((opt, oIdx) => `
+                <div class="quiz-option" onclick="selectQuizOption('${q.question_id}', ${oIdx}, this)">
+                  ${String.fromCharCode(65 + oIdx)}. ${opt}
+                </div>
+              `).join('')}
+            </div>
+            <div id="explanation-${q.question_id}" class="quiz-explanation"></div>
+          `;
+          qContainer.appendChild(card);
+        });
+      } catch (err) {
+        console.error('Failed to load training:', err);
+      }
+    }
+
+    function selectQuizOption(qid, optionIdx, element) {
+      selectedQuizAnswers[qid] = optionIdx;
+      const group = element.closest('.quiz-options-group');
+      group.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+      element.classList.add('selected');
+    }
+
+    async function submitQuiz() {
+      if (Object.keys(selectedQuizAnswers).length < 8) {
+        if (!confirm('You have unanswered questions. Submit anyway?')) return;
+      }
+      try {
+        const res = await fetch('/api/v1/training/quiz/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers: selectedQuizAnswers })
+        });
+        const result = await res.json();
+        
+        const badge = document.getElementById('quizScoreBadge');
+        badge.style.display = 'inline-block';
+        badge.innerText = `Score: ${result.score_percentage}% (${result.correct_answers}/${result.total_questions})`;
+        badge.className = `badge ${result.passed ? 'badge-low' : 'badge-high'}`;
+
+        result.feedback.forEach(fb => {
+          const card = document.getElementById(`quiz-card-${fb.question_id}`);
+          if (card) {
+            const opts = card.querySelectorAll('.quiz-option');
+            opts.forEach((optEl, idx) => {
+              optEl.classList.remove('correct', 'wrong');
+              if (idx === fb.correct_index) optEl.classList.add('correct');
+              else if (idx === fb.selected_index && !fb.is_correct) optEl.classList.add('wrong');
+            });
+
+            const exp = document.getElementById(`explanation-${fb.question_id}`);
+            exp.style.display = 'block';
+            exp.innerHTML = `<strong>${fb.is_correct ? '✓ Correct!' : '✗ Incorrect.'}</strong> ${fb.explanation}`;
+          }
+        });
+
+        alert(`${result.status_message}\nYour Score: ${result.score_percentage}%`);
+      } catch (err) {
+        alert('Quiz submission failed: ' + err.message);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    // Initial boot
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSummaryMetrics();
+    });
+  </script>
+</body>
+</html>

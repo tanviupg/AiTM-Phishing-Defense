@@ -1,0 +1,18 @@
+{
+  "session_id": "LIVE-LAB_AUTH_SESSION_b",
+  "timestamp": "2026-10-21T17:17:54.366603+00:00",
+  "auth_result": "success",
+  "redirect_count": 4,
+  "redirect_chain": [
+    "client-browser.local",
+    "lab-proxy.local:5002",
+    "mock-idp.local:5001",
+    "lab-proxy.local:5002"
+  ],
+  "tls_anomaly": true,
+  "replay_indicator": true,
+  "source_ip": "198.51.100.25",
+  "device_id": "DEVICE-INTERCEPTED",
+  "scenario": "suspicious_simulation",
+  "stolen_token": "LAB_AUTH_SESSION_ba55006ccda4d80bfa40b38e50b2fc2f"
+}
