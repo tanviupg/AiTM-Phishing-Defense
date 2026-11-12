@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiTM Sentinel — Module 4 SOC Dashboard & User Training</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles/soc-theme.css" />
+</head>
+<body>
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+  <div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="sidebar" aria-label="Primary SOC Navigation">
+      <div class="sidebar-brand">
+        <div class="brand-logo" aria-hidden="true">🛡️</div>
+        <div>
+          <div class="brand-name">AiTM Sentinel</div>
+          <div class="brand-sub">Module 4 • SOC Console</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-label">SOC Operations</div>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-link active" data-route="dashboard">
+          <span class="nav-icon">📊</span>
+          <span>SOC Dashboard</span>
+        </a>
+        <a href="#events" class="nav-link" data-route="events">
+          <span class="nav-icon">📡</span>
+          <span>Event Monitoring</span>
+        </a>
+        <a href="#incidents" class="nav-link" data-route="incidents">
+          <span class="nav-icon">🚨</span>
+          <span>Incident Management</span>
+        </a>
+        <a href="#hardening" class="nav-link" data-route="hardening">
+          <span class="nav-icon">🔐</span>
+          <span>FIDO2 &amp; Hardening</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-section-label">Security Awareness</div>
+      <nav class="sidebar-nav">
+        <a href="#training" class="nav-link" data-route="training">
+          <span class="nav-icon">🎓</span>
+          <span>User Training (9 Lessons)</span>
+        </a>
+        <a href="#quiz" class="nav-link" data-route="quiz">
+          <span class="nav-icon">🏆</span>
+          <span>Awareness Quiz (12 Qs)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="module-status-card">
+          <div class="status-title">Pipeline Connectivity</div>
+          <ul id="moduleConnectivityList" class="connectivity-list">
+            <li><span class="dot dot-muted"></span> Checking modules...</li>
+          </ul>
+        </div>
+        <div class="safety-note">
+          Safe Lab Mode: Synthetic telemetry only. No real passwords or cookies collected.
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="mobileMenuBtn" class="icon-btn mobile-only" aria-label="Toggle Menu">☰</button>
+          <div>
+            <h1 id="pageHeading" class="page-heading">SOC Command Dashboard</h1>
+            <p id="pageSubheading" class="page-subheading">Real-time AiTM detection telemetry integrated across Modules 1, 2 &amp; 3</p>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div id="provenanceBadge" class="provenance-pill loading">
+            <span class="dot"></span>
+            <span id="provenanceText">Connecting...</span>
+          </div>
+          <button id="globalRefreshBtn" class="btn btn-secondary btn-sm">↻ Refresh</button>
+        </div>
+      </header>
+
+      <!-- Fallback Banner (Visible ONLY when synthetic fallback mode is active) -->
+      <div id="fallbackWarningBanner" class="fallback-banner hidden" role="alert">
+        <strong>DEMONSTRATION FALLBACK ACTIVE:</strong> Live Modules 1–3 API/pipeline are unreachable. Displaying clearly labelled synthetic mock demonstration data rather than live detection output.
+      </div>
+
+      <!-- Dynamic Page Container -->
+      <main id="pageContainer" class="page-container"></main>
+    </div>
+  </div>
+
+  <!-- Incident Details Modal / Drawer -->
+  <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modalTitle" class="modal-title">Details</h2>
+        <button id="modalCloseBtn" class="btn btn-secondary btn-sm">✕ Close</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

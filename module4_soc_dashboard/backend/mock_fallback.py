@@ -1,0 +1,195 @@
+"""
+Clearly labelled synthetic fallback data for Module 4.
+
+Used ONLY when both the live Module 3 REST API and direct Python imports of
+Modules 1, 2, and 3 are unavailable. Every record returned by this module is
+explicitly tagged with `data_source="SYNTHETIC_FALLBACK"` and `is_mock_data=True`
+so the SOC dashboard never disguises demonstration fallback data as live
+detection telemetry.
+"""
+
+from typing import Any
+
+
+FALLBACK_EVENTS: list[dict[str, Any]] = [
+    {
+        "event_id": "DEMO-EVT-001",
+        "timestamp": "2026-10-21T14:05:00+00:00",
+        "session_id": "DEMO-SES-001",
+        "user_alias": "alice@lab.local",
+        "scenario": "normal",
+        "auth_result": "success",
+        "redirect_count": 1,
+        "redirect_chain": ["login.microsoftonline.com"],
+        "tls_anomaly": False,
+        "replay_indicator": False,
+        "source_ip": "192.0.2.10",
+        "device_id": "DEV-CORP-01",
+        "risk_score": 0,
+        "risk_score_normalized": 0.0,
+        "severity": "Low",
+        "detection_reason": "Fallback demo: baseline normal authentication without anomalies",
+        "incident_status": "Monitored",
+        "triggered_indicators": [],
+        "is_mock_data": True,
+        "data_source": "SYNTHETIC_FALLBACK",
+    },
+    {
+        "event_id": "DEMO-EVT-002",
+        "timestamp": "2026-10-21T14:12:00+00:00",
+        "session_id": "DEMO-SES-002",
+        "user_alias": "bob@lab.local",
+        "scenario": "suspicious_simulation",
+        "auth_result": "success",
+        "redirect_count": 4,
+        "redirect_chain": [
+            "portal.corp.invalid",
+            "relay-proxy.phish-demo.invalid",
+            "login.microsoftonline.com",
+            "portal.corp.invalid",
+        ],
+        "tls_anomaly": True,
+        "replay_indicator": True,
+        "source_ip": "198.51.100.45",
+        "device_id": "DEV-EXT-99",
+        "risk_score": 90,
+        "risk_score_normalized": 0.90,
+        "severity": "High",
+        "detection_reason": "Fallback demo: cyclic redirect loop + TLS anomaly + simulated token replay",
+        "incident_status": "Open",
+        "triggered_indicators": [
+            "base:SUSPICIOUS_REDIRECT_CYCLE",
+            "base:EXCESSIVE_REDIRECT_COUNT",
+            "tls:CERT_HOSTNAME_MISMATCH",
+            "session:TOKEN_BINDING_FAILURE",
+        ],
+        "is_mock_data": True,
+        "data_source": "SYNTHETIC_FALLBACK",
+    },
+    {
+        "event_id": "DEMO-EVT-003",
+        "timestamp": "2026-10-21T14:25:00+00:00",
+        "session_id": "DEMO-SES-003",
+        "user_alias": "carol@lab.local",
+        "scenario": "suspicious_simulation",
+        "auth_result": "success",
+        "redirect_count": 4,
+        "redirect_chain": [
+            "portal.corp.local",
+            "reverse-proxy.attacker-relay.invalid",
+            "login.microsoftonline.com",
+            "portal.corp.local",
+        ],
+        "tls_anomaly": False,
+        "replay_indicator": False,
+        "source_ip": "192.0.2.77",
+        "device_id": "DEV-CORP-03",
+        "risk_score": 45,
+        "risk_score_normalized": 0.45,
+        "severity": "Medium",
+        "detection_reason": "Fallback demo: suspicious redirect cycle through intermediary relay",
+        "incident_status": "Investigating",
+        "triggered_indicators": [
+            "base:SUSPICIOUS_REDIRECT_CYCLE",
+            "base:EXCESSIVE_REDIRECT_COUNT",
+        ],
+        "is_mock_data": True,
+        "data_source": "SYNTHETIC_FALLBACK",
+    },
+]
+
+FALLBACK_INCIDENTS: list[dict[str, Any]] = [
+    {
+        "incident_id": "DEMO-INC-002",
+        "session_id": "DEMO-SES-002",
+        "title": "[DEMO FALLBACK] AiTM Reverse-Proxy & Token Replay Simulation",
+        "severity": "High",
+        "risk_score": 90,
+        "risk_level": "HIGH",
+        "status": "Open",
+        "user_alias": "bob@lab.local",
+        "scenario": "suspicious_simulation",
+        "signals": {
+            "unexpected_domain": True,
+            "tls_anomaly": True,
+            "replay_indicator": True,
+            "redirect_anomaly": True,
+            "context_anomaly": False,
+        },
+        "formula_breakdown": {
+            "formula": "R = 30D + 20C + 25S + 15E + 10A",
+            "variables": {"D": 1, "C": 1, "S": 1, "E": 1, "A": 0},
+            "contributions": {"D": 30, "C": 20, "S": 25, "E": 15, "A": 0},
+            "score_out_of_100": 90,
+        },
+        "recommendations": [
+            "Investigate session",
+            "Re-authenticate user",
+            "Prefer FIDO2/passkey",
+            "Revoke active session tokens and refresh tokens",
+        ],
+        "created_at": "2026-10-21T14:12:00+00:00",
+        "updated_at": "2026-10-21T14:12:00+00:00",
+        "is_mock_data": True,
+        "data_source": "SYNTHETIC_FALLBACK",
+    },
+    {
+        "incident_id": "DEMO-INC-003",
+        "session_id": "DEMO-SES-003",
+        "title": "[DEMO FALLBACK] Suspicious Authentication Redirect Loop",
+        "severity": "Medium",
+        "risk_score": 45,
+        "risk_level": "MEDIUM",
+        "status": "Investigating",
+        "user_alias": "carol@lab.local",
+        "scenario": "suspicious_simulation",
+        "signals": {
+            "unexpected_domain": True,
+            "tls_anomaly": False,
+            "replay_indicator": False,
+            "redirect_anomaly": True,
+            "context_anomaly": False,
+        },
+        "formula_breakdown": {
+            "formula": "R = 30D + 20C + 25S + 15E + 10A",
+            "variables": {"D": 1, "C": 0, "S": 0, "E": 1, "A": 0},
+            "contributions": {"D": 30, "C": 0, "S": 0, "E": 15, "A": 0},
+            "score_out_of_100": 45,
+        },
+        "recommendations": [
+            "Investigate authentication activity",
+            "Monitor suspicious redirect behavior",
+        ],
+        "created_at": "2026-10-21T14:25:00+00:00",
+        "updated_at": "2026-10-21T14:25:00+00:00",
+        "is_mock_data": True,
+        "data_source": "SYNTHETIC_FALLBACK",
+    },
+]
+
+FALLBACK_SESSIONS: list[dict[str, Any]] = [
+    {
+        "session_id": "DEMO-SES-001",
+        "user_alias": "alice@lab.local",
+        "client_context": "Windows 11 / Edge (Demo)",
+        "source_ip": "192.0.2.10",
+        "status": "active",
+        "replay_indicator": 0,
+        "scenario": "normal",
+        "created_at": "2026-10-21T14:05:00+00:00",
+        "is_mock_data": True,
+        "data_source": "SYNTHETIC_FALLBACK",
+    },
+    {
+        "session_id": "DEMO-SES-002",
+        "user_alias": "bob@lab.local",
+        "client_context": "Linux / Python-requests (Demo)",
+        "source_ip": "198.51.100.45",
+        "status": "active",
+        "replay_indicator": 1,
+        "scenario": "suspicious_simulation",
+        "created_at": "2026-10-21T14:12:00+00:00",
+        "is_mock_data": True,
+        "data_source": "SYNTHETIC_FALLBACK",
+    },
+]
